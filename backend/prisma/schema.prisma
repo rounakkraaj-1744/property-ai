@@ -1,9 +1,65 @@
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../src/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
-  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String  @id @default(uuid())
+  name         String
+  email        String?
+  phone_number String
+}
+
+model Property {
+  id           String   @id @default(uuid())
+  source       String
+  sourceId     String
+  title        String
+  price        Float
+  pricePerSqft Float?
+  areaSqft     Float?
+  bhk          Int?
+  furnishing   String?
+  latitude     Float
+  longitude    Float
+  locality     String
+  city         String
+  createdAt    DateTime @default(now())
+  scrapedAt    DateTime
+
+  priceHistory PriceHistory[]
+
+  @@unique([source, sourceId])
+}
+
+model PriceHistory {
+  id         String   @id @default(uuid())
+  propertyId String
+  price      Float
+  recordedAt DateTime @default(now())
+
+  property Property @relation(fields: [propertyId], references: [id])
+}
+
+model SearchLog {
+  id        String   @id @default(uuid())
+  query     String
+  filters   Json
+  createdAt DateTime @default(now())
+}
+
+model ClickLog {
+  id         String   @id @default(uuid())
+  propertyId String
+  createdAt  DateTime @default(now())
+}
+
+enum ROLE {
+  BUYER
+  SELLER
+  ADMIN
 }
